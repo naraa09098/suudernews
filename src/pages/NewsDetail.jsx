@@ -56,8 +56,44 @@ export default function NewsDetail() {
                 title={news?.title}
                 description={news?.summary || news?.title}
                 image={news?.image}
-                url={`https://suudernews.mn/news/${news?.id}`}
+                url={`https://suudernews.mn/news/${news?.slug || news?.id}`}
+                type="article"
+                publishedTime={news?.createdAt}
             />
+
+            <script type="application/ld+json">
+                {JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "NewsArticle",
+
+                    headline: news?.title,
+
+                    image: [news?.image],
+
+                    datePublished: news?.createdAt,
+                    dateModified: news?.createdAt,
+
+                    author: {
+                        "@type": "Organization",
+                        name: "Suudernews.mn"
+                    },
+
+                    publisher: {
+                        "@type": "Organization",
+                        name: "Suudernews.mn",
+                        logo: {
+                            "@type": "ImageObject",
+                            url: "https://suudernews.mn/logo.png"
+                        }
+                    },
+
+                    mainEntityOfPage: {
+                        "@type": "WebPage",
+                        "@id": `https://suudernews.mn/news/${news?.slug || news?.id}`
+                    }
+
+                })}
+            </script>
 
             <div className="max-w-7xl mx-auto px-4 py-6">
                 <div className="grid lg:grid-cols-12 gap-8">

@@ -1,3 +1,4 @@
+import SEO from "../components/SEO"
 import { useParams, Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import {
@@ -76,60 +77,84 @@ export default function Category() {
         )
     }
 
+    const title = titles[name] || name
+
     return (
-        <div className="max-w-7xl mx-auto mt-6 px-4">
-            <h1 className="text-2xl font-bold mb-6">
-                {titles[name]}
-            </h1>
+        <>
+            <SEO
+                title={`${title} мэдээ`}
+                description={`${title} ангиллын хамгийн сүүлийн мэдээ мэдээлэл`}
+                url={`https://suudernews.mn/category/${name}`}
+            />
 
-            <div className="grid lg:grid-cols-12 gap-8">
-                {/* LEFT */}
-                <div className="lg:col-span-8">
+            <script type="application/ld+json">
+                {JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "CollectionPage",
+                    name: `${title} мэдээ`,
+                    url: `https://suudernews.mn/category/${name}`,
+                    isPartOf: {
+                        "@type": "WebSite",
+                        name: "Suudernews.mn",
+                        url: "https://suudernews.mn"
+                    }
+                })}
+            </script>
 
-                    {featured && (
-                        <Link
-                            to={`/news/${featured.id}`}
-                            className="block group"
-                        >
-                            <BlurImage
-                                src={featured.image}
-                                alt={featured.title}
-                                className="w-full h-[320px] md:h-[420px] object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
-                            />
+            <div className="max-w-7xl mx-auto mt-6 px-4">
+                <h1 className="text-2xl font-bold mb-6">
+                    {title}
+                </h1>
 
-                            <h2 className="text-xl font-bold mt-3 group-hover:text-red-600">
-                                {featured.title}
-                            </h2>
-                        </Link>
-                    )}
+                <div className="grid lg:grid-cols-12 gap-8">
+                    {/* LEFT */}
+                    <div className="lg:col-span-8">
 
-                    <div className="grid sm:grid-cols-2 gap-6 mt-6">
-                        {news.map((n) => (
+                        {featured && (
                             <Link
-                                key={n.id}
-                                to={`/news/${n.id}`}
-                                className="group block"
+                                to={`/news/${featured.slug || featured.id}`}
+                                className="block group"
                             >
                                 <BlurImage
-                                    src={n.image}
-                                    alt={n.title}
-                                    className="w-full h-40 object-cover rounded-lg group-hover:scale-105"
+                                    src={featured.image}
+                                    alt={featured.title}
+                                    className="w-full h-[320px] md:h-[420px] object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
                                 />
 
-                                <div className="font-medium mt-2 line-clamp-2 group-hover:text-red-600">
-                                    {n.title}
-                                </div>
+                                <h2 className="text-xl font-bold mt-3 group-hover:text-red-600">
+                                    {featured.title}
+                                </h2>
                             </Link>
-                        ))}
+                        )}
+
+                        <div className="grid sm:grid-cols-2 gap-6 mt-6">
+                            {news.map((n) => (
+                                <Link
+                                    key={n.id}
+                                    to={`/news/${n.slug || n.id}`}
+                                    className="group block"
+                                >
+                                    <BlurImage
+                                        src={n.image}
+                                        alt={n.title}
+                                        className="w-full h-40 object-cover rounded-lg group-hover:scale-105"
+                                    />
+
+                                    <div className="font-medium mt-2 line-clamp-2 group-hover:text-red-600">
+                                        {n.title}
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+
                     </div>
 
-                </div>
-
-                {/* RIGHT */}
-                <div className="lg:col-span-4">
-                    <StickySidebar />
+                    {/* RIGHT */}
+                    <div className="lg:col-span-4">
+                        <StickySidebar />
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }

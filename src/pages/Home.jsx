@@ -11,15 +11,15 @@ import Sidebar from "../components/Sidebar"
 import HomepageBanner from "../components/HomepageBanner"
 import FeaturedNewsSlider from "../components/FeaturedNewsSlider"
 import NewsSlider from "../components/NewsSlider"
+import Banner from "../components/Banner"
 
 
 export default function Home() {
     return (
         <>
             <SEO
-                title="Suudernews.mn"
-                description="Монголын шуурхай мэдээ мэдээлэл"
-                image="/logo.png"
+                title="Suudernews - Шуурхай мэдээ"
+                description="Монголын хамгийн сүүлийн үеийн мэдээ мэдээлэл"
                 url="https://suudernews.mn"
             />
 
