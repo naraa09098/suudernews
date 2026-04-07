@@ -1,49 +1,48 @@
 export default async function handler(req, res) {
+
     const base = "https://suudernews.mn"
 
-    try {
-        const response = await fetch(
-            "https://firestore.googleapis.com/v1/projects/suudernews/databases/(default)/documents/news?pageSize=100"
-        )
+    const r = await fetch(
+        "https://firestore.googleapis.com/v1/projects/suudernews/databases/(default)/documents/news"
+    )
 
-        const data = await response.json()
+    const json = await r.json()
 
-        const docs = data.documents || []
+    const docs = json.documents || []
 
-        const urls = docs.map(doc => {
-            const id = doc.name.split("/").pop()
-            const fields = doc.fields || {}
+    let urls = ""
 
-            const slug = fields.slug?.stringValue || id
+    for (const doc of docs) {
 
-            const date =
-                fields.createdAt?.timestampValue ||
-                new Date().toISOString()
+        const id = doc.name.split("/").pop()
+        const f = doc.fields || {}
 
-            return `
-      <url>
-        <loc>${base}/news/${slug}</loc>
-        <lastmod>${date}</lastmod>
-        <priority>0.8</priority>
-      </url>`
-        }).join("")
+        const slug = f.slug?.stringValue || id
 
-        const xml = `<?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+        const date =
+            f.createdAt?.timestampValue ||
+            new Date().toISOString()
 
-      <url>
-        <loc>${base}</loc>
-        <priority>1.0</priority>
-      </url>
-
-      ${urls}
-
-    </urlset>`
-
-        res.setHeader("Content-Type", "text/xml")
-        res.status(200).send(xml)
-
-    } catch (e) {
-        res.status(500).send("sitemap error")
+        urls += `
+<url>
+<loc>${base}/news/${slug}</loc>
+<lastmod>${date}</lastmod>
+</url>
+`
     }
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+<url>
+<loc>${base}/</loc>
+</url>
+
+${urls}
+
+</urlset>`
+
+    res.setHeader("Content-Type", "text/xml")
+    res.send(xml)
+
 }
