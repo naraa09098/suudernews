@@ -11,7 +11,6 @@ import Sidebar from "../components/Sidebar"
 import HomepageBanner from "../components/HomepageBanner"
 import FeaturedNewsSlider from "../components/FeaturedNewsSlider"
 import NewsSlider from "../components/NewsSlider"
-import Banner from "../components/Banner"
 
 
 export default function Home() {
