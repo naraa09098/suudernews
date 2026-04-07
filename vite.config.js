@@ -1,11 +1,19 @@
 import { defineConfig } from 'vite'
-import react, { reactCompilerPreset } from '@vitejs/plugin-react'
-import babel from '@rolldown/plugin-babel'
+import react from '@vitejs/plugin-react'
+import prerender from 'vite-plugin-prerender'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    babel({ presets: [reactCompilerPreset()] })
-  ],
+    prerender({
+      routes: [
+        '/',
+        '/category/uls-tur',
+        '/category/niigem',
+        '/category/ediin-zasag',
+        '/category/niitlel',
+        '/category/nevtruuleg'
+      ]
+    })
+  ]
 })
