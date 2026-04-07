@@ -14,6 +14,7 @@ export default function NewsForm({ editing, setEditing, onSaved }) {
     const [breaking, setBreaking] = useState(false)
     const [showToast, setShowToast] = useState(false)
     const [editorKey, setEditorKey] = useState(0)
+    const [saving, setSaving] = useState(false)
 
     useEffect(() => {
         if (editing) {
@@ -23,17 +24,11 @@ export default function NewsForm({ editing, setEditing, onSaved }) {
             setFeatured(editing.featured || false)
             setTrending(editing.trending || false)
             setBreaking(editing.breaking || false)
-        } else {
-            reset()
         }
-
-        // 🔥 хамгийн чухал — editor force reset
         setEditorKey(prev => prev + 1)
-
     }, [editing])
 
     const uploadImage = async () => {
-        // шинэ зураг сонгоогүй бол хуучныг хадгална
         if (!file) return editing?.image || ""
 
         const formData = new FormData()
@@ -42,17 +37,15 @@ export default function NewsForm({ editing, setEditing, onSaved }) {
 
         const res = await fetch(
             "https://api.cloudinary.com/v1_1/dkrrwqptv/image/upload",
-            {
-                method: "POST",
-                body: formData
-            }
+            { method: "POST", body: formData }
         )
-
         const data = await res.json()
+
+        if (data.error) throw new Error("Cloudinary: " + data.error.message)
         return data.secure_url
     }
 
-    const reset = () => {
+    const hardReset = () => {
         setTitle("")
         setContent("")
         setCategory("")
@@ -64,39 +57,49 @@ export default function NewsForm({ editing, setEditing, onSaved }) {
     }
 
     const save = async () => {
-        const imageUrl = await uploadImage()
+        if (saving) return
+        if (!title.trim()) return alert("Гарчиг оруулна уу")
 
-        const data = {
-            title,
-            content,
-            category, // slug хадгална
-            featured,
-            trending,
-            breaking,
-            image: imageUrl
+        setSaving(true)
+
+        try {
+            const imageUrl = await uploadImage()
+
+            const newsData = {
+                title,
+                content,
+                category,
+                featured,
+                trending,
+                breaking,
+                image: imageUrl,
+            }
+
+            if (editing) {
+                await updateDoc(doc(db, "news", editing.id), newsData)
+            } else {
+                await addDoc(collection(db, "news"), {
+                    ...newsData,
+                    views: 0,
+                    createdAt: Date.now()
+                })
+            }
+
+            setShowToast(true)
+            if (!editing) hardReset()
+            onSaved && onSaved()
+
+        } catch (err) {
+            alert("Алдаа гарлаа: " + err.message)
+        } finally {
+            setSaving(false)
         }
-
-        if (editing) {
-            await updateDoc(doc(db, "news", editing.id), data)
-        } else {
-            await addDoc(collection(db, "news"), {
-                ...data,
-                views: 0,
-                createdAt: Date.now()
-            })
-        }
-
-        reset()
-        setEditing(null)
-        setShowToast(true)
-        onSaved && onSaved()
     }
 
     return (
         <div className="border p-4 mb-8">
-
             <h3 className="font-bold mb-4">
-                {editing ? "Edit News" : "Add News"}
+                {editing ? "Мэдээ засах" : "Мэдээ нэмэх"}
             </h3>
 
             <input
@@ -109,8 +112,8 @@ export default function NewsForm({ editing, setEditing, onSaved }) {
             <div className="mb-3">
                 <Editor
                     key={editorKey}
-                    value={content}
-                    onChange={setContent}
+                    value={content || ""}
+                    onChange={(val) => setContent(val || "")}
                 />
             </div>
 
@@ -120,27 +123,11 @@ export default function NewsForm({ editing, setEditing, onSaved }) {
                 onChange={(e) => setCategory(e.target.value)}
             >
                 <option value="">Ангилал сонгох</option>
-
-                <option value="uls-tur">
-                    Улс төр
-                </option>
-
-                <option value="niigem">
-                    Нийгэм
-                </option>
-
-                <option value="ediin-zasag">
-                    Эдийн засаг
-                </option>
-
-                <option value="niitlel">
-                    Нийтлэл
-                </option>
-
-                <option value="nevtruuleg">
-                    Нэвтрүүлэг
-                </option>
-
+                <option value="uls-tur">Улс төр</option>
+                <option value="niigem">Нийгэм</option>
+                <option value="ediin-zasag">Эдийн засаг</option>
+                <option value="niitlel">Нийтлэл</option>
+                <option value="nevtruuleg">Нэвтрүүлэг</option>
             </select>
 
             <input
@@ -150,7 +137,7 @@ export default function NewsForm({ editing, setEditing, onSaved }) {
             />
 
             <div className="flex gap-4 mb-3">
-                <label>
+                <label className="flex items-center gap-1 cursor-pointer">
                     <input
                         type="checkbox"
                         checked={featured}
@@ -158,8 +145,7 @@ export default function NewsForm({ editing, setEditing, onSaved }) {
                     />
                     Featured
                 </label>
-
-                <label>
+                <label className="flex items-center gap-1 cursor-pointer">
                     <input
                         type="checkbox"
                         checked={trending}
@@ -167,8 +153,7 @@ export default function NewsForm({ editing, setEditing, onSaved }) {
                     />
                     Trending
                 </label>
-
-                <label>
+                <label className="flex items-center gap-1 cursor-pointer">
                     <input
                         type="checkbox"
                         checked={breaking}
@@ -178,19 +163,36 @@ export default function NewsForm({ editing, setEditing, onSaved }) {
                 </label>
             </div>
 
-            <button
-                className="bg-black text-white px-4 py-2"
-                onClick={save}
-            >
-                {editing ? "Update" : "Save"}
-            </button>
+            <div className="flex gap-2 items-center">
+                <button
+                    className={`px-4 py-2 text-white transition-colors ${saving
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-black hover:bg-gray-800"
+                        }`}
+                    onClick={save}
+                    disabled={saving}
+                >
+                    {saving ? "Хадгалж байна..." : editing ? "Шинэчлэх" : "Хадгалах"}
+                </button>
+
+                {editing && (
+                    <button
+                        className="px-4 py-2 border hover:bg-gray-100"
+                        onClick={() => {
+                            setEditing(null)
+                            hardReset()
+                        }}
+                    >
+                        Болих
+                    </button>
+                )}
+            </div>
 
             <Toast
                 show={showToast}
-                message="Амжилттай хадгаллаа"
+                message="Амжилттай хадгаллаа ✓"
                 onClose={() => setShowToast(false)}
             />
-
         </div>
     )
 }

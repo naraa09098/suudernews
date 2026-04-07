@@ -6,8 +6,7 @@ import { getAuth } from "firebase/auth"
 const firebaseConfig = {
     apiKey: "AIzaSyB7_oNYrDiRBo65H3buzvuTRgBJPGy5VMI",
     authDomain: "suudernews.firebaseapp.com",
-    //projectId: "suudernews",
-    projectId: "https://firestore.googleapis.com/v1/projects/suudernews/databases/(default)/documents/news",
+    projectId: "suudernews",
     storageBucket: "suudernews.firebasestorage.app",
     messagingSenderId: "638434908489",
     appId: "1:638434908489:web:4fd10921a6a75e64e32298",

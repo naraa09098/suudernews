@@ -99,8 +99,9 @@ export default function NewsSlider() {
                         <Link to={`/news/${item.id}`}>
                             <div className="group cursor-pointer">
                                 <img
-                                    src={item.image}
-                                    className="w-full h-[160px] object-cover rounded-lg"
+                                    src={item.image || "/placeholder.jpg"}
+                                    alt={item.title}
+                                    className="w-full h-[160px] object-cover rounded-lg bg-gray-100"
                                 />
 
                                 <h3 className="mt-2 text-sm font-medium line-clamp-2 group-hover:text-yellow-500">
