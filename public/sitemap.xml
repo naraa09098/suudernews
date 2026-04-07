@@ -1,7 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://suudernews.mn/</loc>
-    <priority>1.0</priority>
-  </url>
+
+<url>
+<loc>https://suudernews.mn/</loc>
+<priority>1.0</priority>
+</url>
+
+<url>
+<loc>https://suudernews.mn/category/uls-tur</loc>
+</url>
+
+<url>
+<loc>https://suudernews.mn/category/niigem</loc>
+</url>
+
+<url>
+<loc>https://suudernews.mn/category/ediin-zasag</loc>
+</url>
+
+<url>
+<loc>https://suudernews.mn/category/niitlel</loc>
+</url>
+
+<url>
+<loc>https://suudernews.mn/category/nevtruuleg</loc>
+</url>
+
 </urlset>
